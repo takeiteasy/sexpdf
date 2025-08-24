@@ -1,0 +1,26 @@
+(:name "Alice" :age 30 :city "Tokyo")
+(:name "Bob" :age 25 :city "New York")
+(:name "Carol" :age 35 :city "London")
+(:timestamp "2024-01-15T10:30:00Z" :level :info :message "User login" :user-id 123)
+(:timestamp "2024-01-15T10:31:00Z" :level :warn :message "High CPU usage" :cpu 85.2)
+(:timestamp "2024-01-15T10:32:00Z" :level :error :message "Database timeout" :query "SELECT * FROM users")
+(:service "web" :port 8080 :workers 4)
+(:service "api" :port 3000 :workers 2 :auth :required)
+(:service "worker" :queue "jobs" :threads 8)
+(:id 1 :name "Product A" :price 29.99 :tags (:electronics :gadget))
+(:id 2 :name "Product B" :price 15.50 :tags (:book :education))
+(:id 3 :name "Product C" :price 99.00 :tags (:electronics :computer))
+(:event "user_created" :data (:id 123 :email "alice@example.com"))
+(:event "user_updated" :data (:id 123 :name "Alice Smith"))
+(:event "user_deleted" :data (:id 123))
+(:name "Alice" :age 30)
+(:message "Line 1
+Line 2
+Line 3" :status :ok)
+(:data "text\x1Emore")
+(:log (:level "INFO" 
+       :message "Multi-line
+error message
+with details")
+ :context (:file "app.lisp" :line 42))
+(:test #("Alice" "Bob" "Carol"))

@@ -1,0 +1,19 @@
+name: sexpdf
+
+options:
+  bundleIdPrefix: io.github.takeiteasy
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "15.0"
+
+settings:
+  GCC_C_LANGUAGE_STANDARD: c11
+  CLANG_WARN_DOCUMENTATION_COMMENTS: false
+
+targets:
+  sexpdf:
+    type: tool
+    platform: macOS
+    sources:
+        - path: test.c
+        - path: sexpdf.h
