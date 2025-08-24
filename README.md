@@ -31,6 +31,8 @@ int main(int argc, char **argv) {
 }
 ```
 
+See [test.c](https://github.com/takeiteasy/sexpdf/blob/master/test.c) for a more comprehensive example.
+
 ## LICENSE
 ```
 sexpdf
