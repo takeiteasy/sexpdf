@@ -181,15 +181,10 @@ enum sedf_error_type sedf_next(struct sedf_parser *parser, struct sedf_token *ou
         goto BAIL;
     char c = cursor(parser);
     switch (c) {
-        case ';':
-            if (peek(parser) == ';') {
-                while (!is_eof(parser) && cursor(parser) != '\n')
-                    consume(parser);
-            } else {
-                err = SEXPDF_UNEXPECTED_CHAR;
-                goto BAIL;
-            }
-            break;
+        case ';': // skip comments and advance to the next line
+            while (!is_eof(parser) && cursor(parser) != '\n' && cursor(parser) != '\r')
+                consume(parser);
+            return sedf_next(parser, out);
         case '(':
             create_token(out, SEXPDF_TOKEN_OBJECT, cursor_ptr(parser), 1);
             consume(parser);

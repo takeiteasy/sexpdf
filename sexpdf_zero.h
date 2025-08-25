@@ -102,6 +102,7 @@ static int sedf_parse_primitive(struct sedf_parser *parser, const char *input,
         case ' ':
         case '(':
         case ')':
+        case ';':
             goto found;
         default:
             break;
@@ -301,6 +302,13 @@ int sedf_parse(struct sedf_parser *parser, const char *input, const int input_le
         case '\r':
         case '\n':
         case ' ':
+            break;
+        case ';': // skip comments and advance to end of line 
+            while (parser->pos < input_length && 
+                   input[parser->pos] != '\0' && 
+                   input[parser->pos] != '\n' && 
+                   input[parser->pos] != '\r')
+                parser->pos++;
             break;
         /* Everything else is a primitive (keywords, numbers, symbols) */
         default:
