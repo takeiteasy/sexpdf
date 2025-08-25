@@ -31,6 +31,11 @@ struct sedf_parser {
     size_t position;
 };
 
+struct sedf_pair {
+    const char *key;
+    struct sedf_atom *value;
+};
+
 struct sedf_object {
     struct sedf_pair *pairs;
     size_t count;
@@ -59,11 +64,6 @@ struct sedf_atom {
         int boolean;
         char *symbol;
     } value;
-};
-
-struct sedf_pair {
-    const char *key;
-    struct sedf_atom *value;
 };
 
 enum sedf_error_type {

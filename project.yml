@@ -15,5 +15,5 @@ targets:
     type: tool
     platform: macOS
     sources:
-        - path: test.c
-        - path: sexpdf.h
+        - path: zero.c
+        - path: sexpdf_zero.h

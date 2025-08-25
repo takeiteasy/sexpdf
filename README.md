@@ -1,37 +1,10 @@
 # sexpdf
 
-**S**-**EXP**ession **D**ata **F**ormat, inspired by [sexpline](https://github.com/snmsts/sexpline/) but for C/C++. Zero dependencies (if you don't count the standard library). 
+**S**-**EXP**ession **D**ata **F**ormat, inspired by [sexpline](https://github.com/snmsts/sexpline/) but for C/C++. See [test.sedf](https://github.com/takeiteasy/sexpdf/blob/master/test.sedf) for a sample.
 
-```c
-#define SEXPDF_IMPLEMENTATION
-#include "sexpdf.h"
+There are two different implementations: see [sexpdf.h](https://github.com/takeiteasy/sexpdf/blob/master/sexpdf.h) and [test.c](https://github.com/takeiteasy/sexpdf/blob/master/test.c) for a more comprehensive example that uses heap allocation and the standard library. Or see [sexpdf_zero.h](https://github.com/takeiteasy/sexpdf/blob/master/sexpdf_zero.h) and [zero.c](https://github.com/takeiteasy/sexpdf/blob/master/zero.c) for a c89 version that has no dependencies and doesn't allocate anthing.
 
-int main(int argc, char **argv) {
-    size_t size;
-    const char *source = read_file("test.sedf", &size);
-    if (!source)
-        return 1;
-
-    size_t count = 0;
-    struct sedf_atom **atoms = NULL;
-    struct sedf_parser parser;
-    sedf_init(&parser, source, size);
-    enum sedf_error_type err = sedf_parse(&parser, (struct sedf_atom**)&atoms, &count);
-    if (err != SEXPDF_OK)
-        return 1;
-
-    if (atoms) {
-        for (size_t i = 0; i < count; i++)
-            sedf_free(atoms[i]);
-        free(atoms);
-    }
-    if (source)
-        free(source);
-    return 0;
-}
-```
-
-See [test.c](https://github.com/takeiteasy/sexpdf/blob/master/test.c) for a more comprehensive example.
+They are both single header implementations so just `#define SEXPDF_IMPLEMENTATION` before including. The zero allocation version is largely based off [JSMN](https://github.com/zserge/jsmn/tree/master), an embeddable descending parser for JSON by [zserge](https://github.com/zserge).
 
 ## LICENSE
 ```
