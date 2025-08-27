@@ -1,22 +1,63 @@
-# sexpdf
+# lisd
 
 > [!WARNING]
 > Work in progress
 
-**S**-**EXP**ession **D**ata **F**ormat, inspired by [sexpline](https://github.com/snmsts/sexpline/) but for C/C++. See [test.sedf](https://github.com/takeiteasy/sexpdf/blob/master/test.sedf) for a sample.
+`lisd` is a **LIS**p **D**ata format. It's inspired by [sexpline](https://github.com/snmsts/sexpline/), but for C/C++. This library is largely based off [JSMN](https://github.com/zserge/jsmn/tree/master), an embeddable descending parser for JSON by [zserge](https://github.com/zserge).
 
-There are two different implementations: see [sexpdf.h](https://github.com/takeiteasy/sexpdf/blob/master/sexpdf.h) and [test.c](https://github.com/takeiteasy/sexpdf/blob/master/test.c) for a more comprehensive example that uses heap allocation and the standard library. Or see [sexpdf_zero.h](https://github.com/takeiteasy/sexpdf/blob/master/sexpdf_zero.h) and [zero.c](https://github.com/takeiteasy/sexpdf/blob/master/zero.c) for a c89 version that has no dependencies and doesn't allocate anthing.
+Define `LISD_IMPLEMENTATION` in *one* C/C++ file to create the implementation.
 
-They are both single header implementations so just `#define SEXPDF_IMPLEMENTATION` before including. The zero allocation version is largely based off [JSMN](https://github.com/zserge/jsmn/tree/master), an embeddable descending parser for JSON by [zserge](https://github.com/zserge).
+## Usage
+
+```c
+#define LISD_IMPLEMENTATION
+#include "lisd.h"
+
+// read_file, token_type_to_string, print_token implementations omitted for brevity. They can be found in test.c if needed.
+
+int main(int argc, const char *argv[]) {
+    struct ld_parser parser;
+    struct ld_token tokens[256];
+    int token_count;
+
+    int input_len = 0;
+    const char *input = read_file("test.lisd", (size_t*)&input_len);
+    if (!input) {
+        printf("Failed to read input file\n");
+        return 1;
+    }
+
+    ld_init(&parser);
+    if ((token_count = ld_parse(&parser, input, input_len, tokens, 256)) < 0) {
+        printf("Parse error: %d\n", token_count);
+        return 1;
+    }
+    
+    printf("Successfully parsed %d tokens:\n\n", token_count);
+    for (int i = 0; i < token_count; i++) {
+        printf("Token %d: Type=%s, Start=%d, End=%d, Size=%d, Parent=%d\n", 
+               i, 
+               token_type_to_string(tokens[i].type),
+               tokens[i].start,
+               tokens[i].end,
+               tokens[i].size,
+               tokens[i].parent);
+        printf("  Content: \"");
+        print_token(input, &tokens[i]);
+        printf("\"\n\n");
+    }
+    return 0;
+}
+```
 
 ## TODO
 
 - [ ] Exporting (from C) API
-- [ ] Convert SEDF <-> JSON tool
+- [ ] Convert lisd <-> JSON tool
 
 ## LICENSE
 ```
-sexpdf
+lisd, lisp data format
 
 Copyright (C) 2025 George Watson
 

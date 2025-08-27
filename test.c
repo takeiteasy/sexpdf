@@ -1,6 +1,8 @@
-#define SEXPDF_IMPLEMENTATION
-#include "sexpdf.h"
+#define LISD_IMPLEMENTATION
+#include "lisd.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static char *read_file(const char *path, size_t *size) {
     char *result = NULL;
@@ -22,73 +24,57 @@ BAIL:
     return result;
 }
 
-void sedf_print_atom(struct sedf_atom *atom, int indent) {
-    switch (atom->type) {
-        case SEXPDF_ATOM_NULL:
-            printf("%*snil\n", indent, "");
-            break;
-        case SEXPDF_ATOM_BOOLEAN:
-            printf("%*s%s\n", indent, "", atom->value.boolean ? "true" : "false");
-            break;
-        case SEXPDF_ATOM_NUMBER:
-            printf("%*s%.6g\n", indent, "", atom->value.number);
-            break;
-        case SEXPDF_ATOM_STRING:
-            printf("%*s\"%s\"\n", indent, "", atom->value.string);
-            break;
-        case SEXPDF_ATOM_SYMBOL:
-            printf("%*s%s\n", indent, "", atom->value.symbol);
-            break;
-        case SEXPDF_ATOM_OBJECT:
-            printf("%*s{\n", indent, "");
-            for (size_t i = 0; i < atom->value.object->count; i++) {
-                printf("%*s  %s: ", indent, "", atom->value.object->pairs[i].key);
-                sedf_print_atom(atom->value.object->pairs[i].value, indent + 1);
-            }
-            printf("%*s}\n", indent, "");
-            break;
-        case SEXPDF_ATOM_ARRAY:
-            printf("%*s[\n", indent, "");
-            for (size_t i = 0; i < atom->value.array->count; i++)
-                sedf_print_atom(atom->value.array->items[i], indent + 2);
-            printf("%*s]\n", indent, "");
-            break;
+static const char* token_type_to_string(enum ld_token_type type) {
+    switch (type) {
+        case LD_SEXP:
+            return "SEXP";
+        case LD_ARRAY:
+            return "ARRAY";
+        case LD_STRING:
+            return "STRING";
+        case LD_PRIMITIVE:
+            return "PRIMITIVE";
+        default:
+            return "UNDEFINED";
     }
 }
 
-int main(int argc, char **argv) {
-    size_t size;
-    int result = 0;
-    size_t count = 0;
-    struct sedf_atom **atoms = NULL;
-    const char *file = read_file("test.sedf", &size);
-    if (!file) {
-        result = 1;
-        goto BAIL;
+static void print_token(const char *input, struct ld_token *token) {
+    int len = token->end - token->start;
+    if (len > 0)
+        printf("%.*s", len, input + token->start);
+}
+
+int main(int argc, const char *argv[]) {
+    struct ld_parser parser;
+    struct ld_token tokens[256];
+    int token_count;
+
+    int input_len = 0;
+    const char *input = read_file("test.lisd", (size_t*)&input_len);
+    if (!input) {
+        printf("Failed to read input file\n");
+        return 1;
     }
 
-    struct sedf_parser parser;
-    sedf_init(&parser, file, size);
-    enum sedf_error_type err = sedf_parse(&parser, (struct sedf_atom**)&atoms, &count);
-    if (err != SEXPDF_OK) {
-        printf("Parse error: %d\n", err);
-        result = 2;
-        goto BAIL;
+    ld_init(&parser);
+    if ((token_count = ld_parse(&parser, input, input_len, tokens, 256)) < 0) {
+        printf("Parse error: %d\n", token_count);
+        return 1;
     }
     
-    printf("Successfully parsed %zu atoms\n", count);
-    for (size_t i = 0; i < count; i++) {
-        printf("=== ATOM #%zu ===\n", i + 1);
-        sedf_print_atom(atoms[i], 0);
-        printf("\n");
+    printf("Successfully parsed %d tokens:\n\n", token_count);
+    for (int i = 0; i < token_count; i++) {
+        printf("Token %d: Type=%s, Start=%d, End=%d, Size=%d, Parent=%d\n", 
+               i, 
+               token_type_to_string(tokens[i].type),
+               tokens[i].start,
+               tokens[i].end,
+               tokens[i].size,
+               tokens[i].parent);
+        printf("  Content: \"");
+        print_token(input, &tokens[i]);
+        printf("\"\n\n");
     }
-
-BAIL:
-    if (atoms) {
-        for (size_t i = 0; i < count; i++)
-            sedf_free(atoms[i]);
-        free(atoms);
-    }
-    free((void*)file);
-    return result;
+    return 0;
 }
